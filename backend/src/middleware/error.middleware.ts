@@ -1,8 +1,29 @@
 import type { ErrorRequestHandler } from "express";
-import { AppError } from "../utils/AppError.js";
 
-export const errorMiddleware: ErrorRequestHandler = (error, _request, response, _next) => {
-  const statusCode = error instanceof AppError ? error.statusCode : 500;
-  const message = error instanceof Error ? error.message : "Internal server error";
-  response.status(statusCode).json({ success: false, message });
+export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
+  err.statusCode = err.statusCode || 500;
+  err.status = err.status || 'error';
+
+  if (process.env.NODE_ENV === 'development') {
+    res.status(err.statusCode).json({
+      success: false,
+      error: err,
+      message: err.message,
+      stack: err.stack,
+    });
+  } else {
+    // Production: Don't leak error details
+    if (err.isOperational) {
+      res.status(err.statusCode).json({
+        success: false,
+        message: err.message,
+      });
+    } else {
+      console.error('ERROR 💥:', err);
+      res.status(500).json({
+        success: false,
+        message: 'Something went wrong',
+      });
+    }
+  }
 };

@@ -11,6 +11,7 @@ export const env = {
     databaseUrl: required("DATABASE_URL"),
     clientUrl: process.env.CLIENT_URL ?? "http://localhost:3000",
     jwtSecret: process.env.JWT_SECRET ?? "development-secret",
+    JWT_SECRET: process.env.JWT_SECRET ?? "development-secret",
     cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
     cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
     cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,

@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { prisma } from '../config/database';
-import AppError from '../utils/AppError';
-import { env } from '../config/env';
+import { prisma } from "../config/database.js";
+import AppError from "../utils/AppError.js";
+import { env } from "../config/env.js";
 export class AuthService {
     static async register(data) {
         const existingUser = await prisma.user.findUnique({

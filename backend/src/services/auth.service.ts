@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { prisma } from '../config/database';
-import AppError from '../utils/AppError';
-import { env } from '../config/env';
+import { prisma } from "../config/database.js";
+import AppError from "../utils/AppError.js";
+import { env } from "../config/env.js";
 
 interface RegisterData {
   email: string;
@@ -27,8 +27,8 @@ export class AuthService {
       data: {
         email: data.email,
         password: hashedPassword,
-        firstName: data.firstName,
-        lastName: data.lastName,
+        ...(data.firstName !== undefined && { firstName: data.firstName }),
+        ...(data.lastName !== undefined && { lastName: data.lastName }),
       },
     });
 

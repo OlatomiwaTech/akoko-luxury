@@ -5,6 +5,7 @@ export declare const env: {
     databaseUrl: string;
     clientUrl: string;
     jwtSecret: string;
+    JWT_SECRET: string;
     cloudinaryCloudName: string | undefined;
     cloudinaryApiKey: string | undefined;
     cloudinaryApiSecret: string | undefined;

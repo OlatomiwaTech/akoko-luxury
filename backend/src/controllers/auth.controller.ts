@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
-import { AuthService } from '../services/auth.service';
-import { catchAsync } from '../utils/catchAsync';
-import AppError from '../utils/AppError';
+import type { Request, Response } from "express";
+import { AuthService } from "../services/auth.service.js";
+import { catchAsync } from "../utils/catchAsync.js";
+import AppError from "../utils/AppError.js";
 
 export class AuthController {
   static register = catchAsync(async (req: Request, res: Response) => {
@@ -90,3 +90,6 @@ export class AuthController {
     });
   });
 }
+
+export const register = AuthController.register;
+export const login = AuthController.login;

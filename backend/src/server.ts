@@ -1,36 +1,65 @@
 import express from "express";
 import cors from "cors";
-import helmet from "helmet";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import { errorHandler } from "./middleware/error.middleware.js";
 import { env } from "./config/env.js";
-import { apiRateLimiter } from "./middleware/rateLimiter.middleware.js";
-import { errorMiddleware } from "./middleware/error.middleware.js";
+
+// Routes
 import { authRouter } from "./routes/auth.routes.js";
 import { productRouter } from "./routes/product.routes.js";
-import { orderRouter } from "./routes/order.routes.js";
 import { cartRouter } from "./routes/cart.routes.js";
+import { orderRouter } from "./routes/order.routes.js";
 import { adminRouter } from "./routes/admin.routes.js";
+
 
 const app = express();
 
+// Security middleware
 app.use(helmet());
-app.use(cors({ origin: env.clientUrl, credentials: true }));
-app.use(express.json());
-app.use(cookieParser());
-app.use(apiRateLimiter);
+app.use(cors({
+  origin: env.clientUrl,
+  credentials: true,
+}));
 
-app.get("/health", (_request, response) => {
-  response.json({ status: "ok" });
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
 });
+app.use('/api', limiter);
+
+// Body parsing
+app.use(express.json({ limit: '10kb' }));
+app.use(cookieParser());
+
+// Routes
 app.use("/api/auth", authRouter);
 app.use("/api/products", productRouter);
-app.use("/api/orders", orderRouter);
 app.use("/api/cart", cartRouter);
+app.use("/api/orders", orderRouter);
 app.use("/api/admin", adminRouter);
-app.use(errorMiddleware);
 
-app.listen(env.port, () => {
-  console.log(`Akoko API listening on port ${env.port}`);
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-export { app };
+// 404 handler
+app.all('/*splat', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route ${req.originalUrl} not found`,
+  });
+});
+
+// Error handler
+app.use(errorHandler);
+
+const PORT = env.port || 5000;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`Environment: ${env.nodeEnv}`);
+});
